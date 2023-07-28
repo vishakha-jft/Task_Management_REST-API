@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TASK-MANAGEMENT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"/>
+<style>
+    .signup-slide-img{
+        width:100%;
+        background-color:darkblue;
+        background-size: cover;
+        height:120vh;
+    }
+    .form-class{
+        margin-top: 2rem;
+    }
+    .form-class h3{
+        width: 82%;
+        margin: auto;
+    }
+    .left {
+        width: 80%;
+        margin: auto;
+    }
+</style>
+</head>
+<body class="signup-slide-img">
+<div class="bg-nb-dark" style="height: unset;">
+    <div class="container-fluid" >
+        <div>
+            <div style="margin: 7rem;">
+                <div class="card full-page-card" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                            <div class="text-center">
+                                <h3>Get Started! in TASK MANAGEMENT</h3>
+                            </div>
+                            <div class="d-flex justify-content-sm-around">
+                            <div class="col-md-6">
+                                <h3 class="left">Register Yourself: </h3>
+                                <form method="post" enctype="multipart/form-data" id="createUser" class="form-class">
+                                <div class="m-b-3">
+                                    <div class="col-lg-10 m-auto">
+                                        <div >
+                                            <div class="form-group">
+                                                <label class="required">USERNAME</label>
+                                                <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        id="username"
+                                                        data-error="#errUserName"
+                                                        name="username"
+                                                        placeholder="Enter unique User-Name"
+                                                />
+                                                <span class="text-danger fs-12" id="errUserName"></span>
+                                            </div>
+                                        </div>
+                                        <div >
+                                            <div class="form-group">
+                                                <label class="required">NAME</label>
+                                                <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        id="name"
+                                                        data-error="#errName"
+                                                        name="name"
+                                                        placeholder="Enter your Name"
+                                                />
+                                                <span class="text-danger fs-12" id="errName"></span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="form-group">
+                                            <label class="required">EMAIL</label>
+                                            <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    id="email"
+                                                    data-error="#errEmail"
+                                                    name="email"
+                                                    placeholder="Enter your Email"
+                                            />
+                                            <span class="text-danger fs-12" id="errEmail"></span>
+                                            </div>
+                                        </div>
+                                        <div >
+                                            <div class="form-group">
+                                                <label class="required">Password</label>
+                                                <input
+                                                        type="password"
+                                                        class="form-control"
+                                                        id="password"
+                                                        data-error="#errUserPassword"
+                                                        name="password"
+                                                        placeholder="Enter User Password"
+                                                        required
+                                                />
+                                                <span class="text-danger fs-12" id="errUserPassword"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </br>
+                                    <div class="row d-flex justify-content-sm-between">
+                                        <div class="col-lg-3 text-center">
+                                            <button class="btn btn-primary" type="button"  onclick="sendData()" id="Register"  >Register </button>
+                                        </div>
+                                        <a href="/home" class="col-lg-3">
+                                        <div class="text-center">
+                                            <button class="btn btn-primary" type="button"  id="Login"  >Login </button>
+                                        </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                </form>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function sendData() {
+        const formElement = document.getElementById("createUser");
+        const formData = new FormData(formElement);
+
+        const jsonObject = {};
+        formData.forEach((value, key) => {
+            jsonObject[key] = value;
+        });
+        const jsonPayload = JSON.stringify(jsonObject);
+        console.log(jsonPayload)
+        fetch('/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonPayload
+        })
+            .then(response => {
+                if (response.ok){
+                    window.location.href = '/home';
+                }
+            })
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>

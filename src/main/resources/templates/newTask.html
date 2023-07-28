@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TAsks Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
+      <h1 class="text-center"> Create New Tasks</h1>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data"  id="taskForm">
+          <div class="form-group">
+            <label> Task Name</label>
+            <input
+                    type="text"
+                    name="name"
+                    class="form-control"
+                    placeholder="Enter Task Name"/>
+          </div>
+          <div class="form-group">
+            <label> Description</label>
+            <textarea
+                    type="text"
+                    name="description"
+                    class="form-control"
+                    placeholder="Enter Task Description"></textarea>
+          </div>
+          <div class="form-group">
+            <label> Status </label>
+            <select class="form-select" aria-label="Default select example" name="status">
+              <option selected value="TO_DO">Open the Status</option>
+              <option value="TO_DO">TO_DO</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input
+                    type="date"
+                    name="dueDate"
+                    class="form-control"
+                    placeholder="Enter Due Date"/>
+          </div>
+          <div class="box-footer">
+            <button type="button" class="btn btn-primary" onclick="taskSubmit()">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:inline="javascript">
+  function taskSubmit(){
+    const formElement = document.getElementById("taskForm");
+    const formData = new FormData(formElement);
+
+    const jsonObject = {};
+    formData.forEach((value, key) => {
+      jsonObject[key] = value;
+    });
+    const jsonPayload = JSON.stringify(jsonObject);
+    console.log(jsonPayload)
+    fetch('/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: jsonPayload
+    })
+            .then(response => {
+              if (response.ok){
+                window.location.href = '/home';
+              }
+            })
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+  }
+</script>
+</body>
+</html>
