@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be modified to control the width of the modal */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/home">Task Management</a>
+    <button aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation"
+            class="navbar-toggler"
+            data-target="#navbarNavAltMarkup" data-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/home">Tasks <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/userTasks">Users</a>
+            <a class="nav-item nav-link" href="/logout">Logout</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+
+    <div class="row d-flex justify-content-sm-between">
+        <h1> All Tasks</h1>
+        <div class="col-lg-3 text-right">
+            <a class="btn btn-primary btn-sm mb-3" th:href="@{/tasks/new}">Create Task</a>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">S.No.</th>
+            <th scope="col">TaskName</th>
+            <th scope="col">Assigned To</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task,itemIndex: ${taskList}">
+            <th th:text="${itemIndex.index}"></th>
+            <td th:text="${task.name}"></td>
+            <td>
+                <div th:if="${task.userId!=null}">
+                    <a class="btn btn-info btn-sm mb-3" th:attr="onclick='openthirdModal(\'' + ${task.userId.id} + '\')'">View User</a>
+                </div>
+                <div th:unless="${task.userId != null}">
+                    <a class="btn btn-info btn-sm mb-3" th:attr="onclick='openModal(\'' + ${task.id} + '\')'">Assign
+                        Task</a>
+                </div>
+            </td>
+            <td>
+                <a class="btn btn-info btn-sm mb-3" th:attr="onclick='openSecondModal(\'' + ${task.id} + '\')'">view</a>
+                <a class="btn btn-warning btn-sm mb-3" th:attr="onclick='editTask(\'' + ${task.id} + '\')'">Edit</a>
+                <a class="btn btn-danger btn-sm mb-3" th:attr="onclick='deleteTask(\'' + ${task.id} + '\')'">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="modal" id="myModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <form id="userForm">
+                <input id="taskId" name="taskId" type="hidden"/>
+                <h5>Assign Task to User:</h5>
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="userSelect">Users List : </label></div>
+                    <div class="col-xs-8 col-sm-7"><select id="userSelect" name="selectedUser">
+                    </select></div>
+                </div>
+                <div class="text-center">
+                    <button type="button" onclick="assignTask()" class="btn btn-info btn-sm mb-3">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal2" data-izimodal-title="View Task" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal2()">&times;</span>
+
+            <!-- Your second form content goes here -->
+            <form id="secondForm" method="post">
+                <input id="id" name="id" type="hidden"/>
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="name">Name:</label></div>
+                    <div class="col-xs-8 col-sm-7"><input type="text" id="name" name="name" disabled /></div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="userId">Assigned To:</label></div>
+                    <div class="col-xs-8 col-sm-7"><input type="text" id="userId" name="userId" disabled /></div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="description">Description:</label></div>
+                    <div class="col-xs-8 col-sm-7"><textarea id="description" name="description" disabled></textarea></div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="dueDate">Due Date:</label></div>
+                    <div class="col-xs-8 col-sm-7"> <input type="date" id="dueDate" name="dueDate" disabled /></div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="status">Status :</label></div>
+                    <div class="col-xs-8 col-sm-7"><select id="status" name="status" disabled>
+                        <option value="TO_DO">TO_DO</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="DONE">DONE</option>
+                    </select></div>
+                </div>
+                <div class="text-center">
+                <button type="button" id="submitBtn" onclick="taskSubmit()" hidden class="btn btn-info btn-sm mb-3">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal3" data-izimodal-title="View Task" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal3()">&times;</span>
+            <!-- Your second form content goes here -->
+            <form id="userViewForm">
+                <input id="user" name="id" type="hidden"/>
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="userName">Username:</label></div>
+                    <div class="col-xs-8 col-sm-7"><input type="text" id="userName" name="userName" disabled /></div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="uName">Name:</label></div>
+                    <div class="col-xs-8 col-sm-7"><input type="text" id="uName" name="uName" disabled /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-xs-4 col-sm-3 text-right"><label for="email">Email:</label></div>
+                    <div class="col-xs-8 col-sm-7"><input type="text" id="email" name="email" disabled /></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    async function openSecondModal(taskId) {
+        var modal2 = document.getElementById('myModal2');
+        modal2.style.display = "block";
+        task = await fetchTask(taskId);
+        $('#myModal2 input[id=id]').val(parseInt(task.id));
+        $('#myModal2 input[id=name]').val(task.name);
+        $('#myModal2 input[id=userId]').val(task.userId ? task.userId.name : "Yet To Assigned");
+        $('#myModal2 textarea[id=description]').val(task.description);
+        $('#myModal2 input[id=dueDate]').val(task.dueDate);
+        $('#myModal2 input[id=status]').val(task.status);
+        $("#name").prop("disabled", true);
+        $("#description").prop("disabled", true);
+        $("#dueDate").prop("disabled", true);
+        $("#status").prop("disabled", true);
+        $("#submitBtn").prop("hidden", true);
+        modal2.style.display = "block";
+    }
+
+    async function openthirdModal(userId) {
+        const modal3 = document.getElementById('myModal3');
+        modal3.style.display = "block";
+        user = await fetchUser(userId);
+        console.log("taskk ",user)
+        $('#myModal3 input[id=id]').val(parseInt(user.id));
+        $('#myModal3 input[id=uName]').val(user.name);
+        $('#myModal3 input[id=userName]').val(user.username);
+        $('#myModal3 input[id=email]').val(user.email);
+        modal3.style.display = "block";
+    }
+
+    function closeModal2() {
+        var modal2 = document.getElementById('myModal2');
+        modal2.style.display = "none";
+    }
+    function closeModal3() {
+        var modal3 = document.getElementById('myModal3');
+        modal3.style.display = "none";
+    }
+
+    async function editTask(taskId) {
+        await openSecondModal(taskId)
+        $("#name").prop("disabled", false);
+        $("#description").prop("disabled", false);
+        $("#dueDate").prop("disabled", false);
+        $("#status").prop("disabled", false);
+        $("#submitBtn").prop("hidden", false);
+        // document.getElementById('submitBtn').style.display = "block";
+        // $("#submitBtn").show();
+    }
+
+    function deleteTask(taskId){
+        fetch('/tasks/' + taskId, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeModal();
+                    location.reload();
+                } else {
+                    console.error('DELETE request failed with status:', response.status);
+                }
+            })
+            .catch(error => console.error('Error deleting Task:', error));
+    }
+    function openModal(taskId) {
+        var modal = document.getElementById('myModal');
+        modal.style.display = "block";
+        document.getElementById('taskId').value = taskId;
+        fetchUsers();
+    }
+
+    function closeModal() {
+        var modal = document.getElementById('myModal');
+        modal.style.display = "none";
+    }
+
+    function fetchUsers() {
+        // Make an Ajax request to fetch the list of users
+        fetch('/users')
+            .then(response => response.json())
+            .then(data => {
+                console.log("data", data)
+                // Populate the select options with the fetched users
+                var select = document.getElementById('userSelect');
+                select.innerHTML = ''; // Clear existing options
+
+                data.forEach(user => {
+                    var option = document.createElement('option');
+                    option.value = user.id;
+                    option.text = user.username;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    }
+    function fetchTask(taskId) {
+        return fetch('/tasks/'+taskId)
+            .then(response => response.json())
+            .then(data => {
+                console.log("data", data)
+                return data;
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    }
+    function fetchUser(userId) {
+        return fetch('/users/'+userId)
+            .then(response => response.json())
+            .then(data => {
+                console.log("data", data)
+                return data;
+            })
+            .catch(error => console.error('Error fetching user:', error));
+    }
+    function assignTask() {
+        var form = document.getElementById('userForm');
+        var formData = new FormData(form);
+        var taskid = formData.get("taskId");
+        var userId = formData.get("selectedUser")
+        console.log(userId);
+        console.log(taskid);
+        // Send a PUT request to the server
+        fetch('/users/' + userId + '/tasks/' + taskid, {
+            method: 'PUT',
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeModal();
+                    location.reload();
+                } else {
+                    console.error('PUT request failed with status:', response.status);
+                }
+            })
+            .catch(error => console.error('Error submitting form:', error));
+    }
+    function taskSubmit(){
+        var form = document.getElementById('secondForm');
+        var formData = new FormData(form);
+        console.log(formData)
+        const tasksId = formData.get("id");
+        const jsonObject = {};
+        formData.forEach((value, key) => {
+            jsonObject[key] = value;
+        });
+        const jsonPayload = JSON.stringify(jsonObject);
+        // Send a PUT request to the server
+        fetch('/tasks/' + tasksId, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonPayload
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeModal();
+                    location.reload();
+                } else {
+                    console.error('PUT request failed with status:', response.status);
+                }
+            })
+            .catch(error => console.error('Error submitting form:', error));
+    }
+</script>
+<!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>-->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+</body>
+</html>
